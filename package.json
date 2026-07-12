@@ -1,25 +1,26 @@
 {
-  "name": "whatsapp-chatgpt-bot",
-  "version": "2.0.0",
-  "description": "WhatsApp bot: Twilio (1-to-1) + WhatsApp-Web (grupp) som drivs av OpenAI GPT-4o.",
+  "name": "gaffa-app",
+  "version": "0.1.0",
+  "description": "Personlig produktivitets- och AI-app byggd med Hono, Drizzle ORM och MySQL.",
   "type": "module",
-  "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "group": "node group_wa.js",
-    "dev": "concurrently \"nodemon index.js\" \"nodemon group_wa.js\""
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "build": "tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
-    "body-parser": "^1.20.2",
-    "concurrently": "^8.2.2",
-    "dotenv": "^16.5.0",
-    "express": "^4.19.2",
-    "openai": "^4.20.0",
-    "qrcode-terminal": "^0.12.0",
-    "twilio": "^4.16.0",
-    "whatsapp-web.js": "^1.24.0"
+    "@hono/node-server": "^1.13.8",
+    "drizzle-orm": "^0.44.2",
+    "hono": "^4.7.0",
+    "mysql2": "^3.11.0",
+    "nanoid": "^5.0.9"
   },
   "devDependencies": {
-    "nodemon": "^3.0.3"
+    "drizzle-kit": "^0.31.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0"
   }
 }

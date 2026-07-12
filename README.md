@@ -1,27 +1,46 @@
-# WhatsApp ChatGPT-Bot 🤖📲
+# Gaffa App
 
-Twilio (1‑till‑1) **och** WhatsApp‑Web gruppbot med OpenAI GPT‑4o.
+Personlig produktivitets- och AI-app byggd med Hono, Drizzle ORM och MySQL.
 
-## Starta lokalt / Codespaces
+## Funktioner
+
+- Chat med sessioner
+- Day Plans
+- Inventory
+- Action Priorities
+- Reports & Plan Analyses
+- Soft delete på alla resurser
+
+## Teknisk stack
+
+- **Backend**: Hono + TypeScript
+- **Databas**: MySQL + Drizzle ORM
+- **Deployment**: Railway (rekommenderat)
+
+## Kom igång lokalt
+
 ```bash
-cp .env.example .env      # fyll nycklar
+git clone <ditt-repo-url>
+cd gaffa-app
 npm install
-npm run dev               # Twilio webhook + gruppbot
+cp .env.example .env
+# Redigera .env med dina databasuppgifter
+npm run dev
 ```
 
-### Twilio 1‑till‑1
-1. Skapa Twilio WhatsApp Sandbox.
-2. Sätt webhook **/whatsapp** till din publik URL (ngrok, Render, etc).
-3. Text + bilagor funkar.
+## Vanliga kommandon
 
-### Gruppbot
-Första körningen visar QR‑kod i terminalen – skanna med WhatsApp‑appen.  
-Session sparas i `.wwebjs_auth/`.
-
-### Skicka bilaga i kod
-```js
-import { sendGroupMedia } from "./group_wa.js";
-await sendGroupMedia("./media/moonbase.png", "Ny render!");
+```bash
+npm run dev          # Starta med hot reload
+npm run db:push      # Synka schema till databas
+npm run db:studio    # Öppna Drizzle Studio
+npm run build        # Typechecka projektet
 ```
 
-> Grupp via WhatsApp‑Web bryter officiella ToS – använd ansvarsfullt.
+## API
+
+- `GET /` – enkel statusrespons
+- `GET /health` – health check med timestamp
+- `POST /api/chat/sessions` – skapa en chattsession
+- `GET /api/chat/sessions/:sessionId/messages` – lista meddelanden för en session
+- `POST /api/chat/sessions/:sessionId/messages` – skapa ett meddelande i en session
