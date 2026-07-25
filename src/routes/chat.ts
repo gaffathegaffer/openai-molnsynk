@@ -44,6 +44,16 @@ async function findActiveSession(sessionId: string) {
   return session;
 }
 
+async function findActiveMessage(sessionId: string, messageId: string) {
+  const [message] = await db
+    .select()
+    .from(chatMessages)
+    .where(and(eq(chatMessages.id, messageId), eq(chatMessages.sessionId, sessionId), isNull(chatMessages.deletedAt)))
+    .limit(1);
+
+  return message;
+}
+
 chatRouter.post('/sessions', async (c) => {
   const parsed = await readJsonBody(c);
 
@@ -70,6 +80,36 @@ chatRouter.post('/sessions', async (c) => {
   const [session] = await db.select().from(chatSessions).where(eq(chatSessions.id, id)).limit(1);
 
   return c.json(session, 201);
+});
+
+chatRouter.patch('/sessions/:sessionId', async (c) => {
+  const sessionId = c.req.param('sessionId');
+  const session = await findActiveSession(sessionId);
+
+  if (!session) {
+    return c.json({ error: 'Chattsessionen hittades inte' }, 404);
+  }
+
+  const parsed = await readJsonBody(c);
+
+  if ('error' in parsed) {
+    return c.json({ error: parsed.error }, 400);
+  }
+
+  const title = getRequiredString(parsed.body, 'title');
+
+  if ('error' in title) {
+    return c.json({ error: title.error }, 400);
+  }
+
+  await db
+    .update(chatSessions)
+    .set({ title: title.value })
+    .where(and(eq(chatSessions.id, sessionId), isNull(chatSessions.deletedAt)));
+
+  const updatedSession = await findActiveSession(sessionId);
+
+  return c.json(updatedSession);
 });
 
 chatRouter.get('/sessions/:sessionId/messages', async (c) => {
@@ -148,4 +188,55 @@ chatRouter.post('/sessions/:sessionId/messages', async (c) => {
   const [message] = await db.select().from(chatMessages).where(eq(chatMessages.id, id)).limit(1);
 
   return c.json(message, 201);
+});
+
+chatRouter.patch('/sessions/:sessionId/messages/:messageId', async (c) => {
+  const sessionId = c.req.param('sessionId');
+  const messageId = c.req.param('messageId');
+  const session = await findActiveSession(sessionId);
+
+  if (!session) {
+    return c.json({ error: 'Chattsessionen hittades inte' }, 404);
+  }
+
+  const message = await findActiveMessage(sessionId, messageId);
+
+  if (!message) {
+    return c.json({ error: 'Meddelandet hittades inte' }, 404);
+  }
+
+  const parsed = await readJsonBody(c);
+
+  if ('error' in parsed) {
+    return c.json({ error: parsed.error }, 400);
+  }
+
+  const updates: { content?: string; context?: unknown } = {};
+
+  if ('content' in parsed.body) {
+    const content = getRequiredString(parsed.body, 'content');
+
+    if ('error' in content) {
+      return c.json({ error: content.error }, 400);
+    }
+
+    updates.content = content.value;
+  }
+
+  if ('context' in parsed.body) {
+    updates.context = parsed.body.context ?? null;
+  }
+
+  if (!('content' in updates) && !('context' in updates)) {
+    return c.json({ error: 'Ange content eller context att uppdatera' }, 400);
+  }
+
+  await db
+    .update(chatMessages)
+    .set(updates)
+    .where(and(eq(chatMessages.id, messageId), eq(chatMessages.sessionId, sessionId), isNull(chatMessages.deletedAt)));
+
+  const updatedMessage = await findActiveMessage(sessionId, messageId);
+
+  return c.json(updatedMessage);
 });

@@ -42,5 +42,7 @@ npm run build        # Typechecka projektet
 - `GET /` – enkel statusrespons
 - `GET /health` – health check med timestamp
 - `POST /api/chat/sessions` – skapa en chattsession
+- `PATCH /api/chat/sessions/:sessionId` – uppdatera titel för en chattsession
 - `GET /api/chat/sessions/:sessionId/messages` – lista meddelanden för en session
 - `POST /api/chat/sessions/:sessionId/messages` – skapa ett meddelande i en session
+- `PATCH /api/chat/sessions/:sessionId/messages/:messageId` – uppdatera innehåll eller context för ett meddelande
